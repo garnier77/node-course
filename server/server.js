@@ -55,6 +55,27 @@ app.get('/bets', (req, res) =>{
 
 });
 
+app.delete('/bets/:id', (req, res) =>{
+    let id = req.params.id;
+
+    if(!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+    Bet.findByIdAndRemove(id).then((bet) =>{
+        console.log(bet);
+
+    if (!bet) {
+        return res.status(404).send();
+    }
+    res.send(bet);
+ }).catch((e) => {
+        res.status(400).send();
+    })
+
+});
+
+
+
 app.listen(port,() =>{
 
     console.log('Started on port 7777')
