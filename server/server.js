@@ -13,7 +13,7 @@ app.post('/bets', (req, res) =>{
    let bet = new Bet({
        team: req.body.team,
        betMade: req.body.betMade
-   })
+   });
     bet.save().then((doc) =>{
       res.send(doc);
     }, (e) =>{
@@ -21,11 +21,21 @@ app.post('/bets', (req, res) =>{
     });
 });
 
+app.get('/bets', (req, res) =>{
+    Bet.find().then((bets) =>{
+        res.send({bets});
+    },(e) => {
+
+        res.status(400).send(e);
+    });
+
+});
+
 app.listen(7777,() =>{
 
     console.log('Started on port 7777')
 });
 
-
+module.exports = {app};
 
 

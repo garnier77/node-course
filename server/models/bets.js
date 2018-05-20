@@ -7,7 +7,7 @@ let Bet = mongoose.model('Bets',{
     },
     betMade: {
         type: Boolean,
-        required: true
+
     },
     betPostedOn: {
         type: Number
