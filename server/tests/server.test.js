@@ -1,14 +1,23 @@
 const expect= require('expect');
 const request = require('supertest');
+const {ObjectID}= require('mongodb');
 
 const {app } = require('./../server');
 const{Bet} = require('./../models/bets');
 
 const bets = [{
-  team: 'Celtics'
-},{
-  team: 'Red Sox'
+    _id: new ObjectID(),
+    team: "San Diego Padres"
+}, {_id: new ObjectID(),
+    team: "Atlanta Braves"
 }];
+
+
+// const bets = [{
+//   team: 'Celtics'
+// },{
+//   team: 'Red Sox'
+// }];
 
 beforeEach((done) => {
   Bet.remove({}).then(() => {
@@ -33,7 +42,7 @@ describe('POST /bets', () => {
             }
 
         Bet.find({team}).then((bets) => {
-          expect(bets.length).toBe(2);
+          expect(bets.length).toBe(1);
           expect(bets[0].team).toBe(team);
                 done();
             }).catch((e) =>  done(e));
@@ -69,3 +78,36 @@ describe('GET /bets', () => {
             .end(done);
   });
 });
+
+describe ('Get /bets/:id', () =>{
+    it('should return bet doc', (done) =>{
+        request(app)
+            .get(`/bets/${bets[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((res) =>{
+                expect(res.body.bet.team).toBe(bets[0].team);
+            })
+            .end(done);
+        }
+    );
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
