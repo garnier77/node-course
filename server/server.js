@@ -6,6 +6,7 @@ let {mongoose} = require('./db/mongoose');
 let{Bet} = require('./models/bets');
 
 let app = express();
+const port = process.env.PORT || 7777;
 
 app.use(bodyParser.json());
 
@@ -54,7 +55,7 @@ app.get('/bets', (req, res) =>{
 
 });
 
-app.listen(7777,() =>{
+app.listen(port,() =>{
 
     console.log('Started on port 7777')
 });
