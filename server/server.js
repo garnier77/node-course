@@ -1,12 +1,15 @@
-let express = require('express');
-let bodyParser = require('body-parser');
+require('./config/config');
+
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 const {ObjectID}= require('mongodb');
 
 let {mongoose} = require('./db/mongoose');
 let{Bet} = require('./models/bets');
 
 let app = express();
-const port = process.env.PORT || 7777;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -48,25 +51,49 @@ app.get('/bets/:id', (req, res) => {
      });
 });
 
-app.delete('/bets/:id', (req, res) =>{
-    let id = req.params.id;
+app.delete('/todos/:id', (req, res) => {
+  var id = req.params.id;
 
     if(!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
-    Bet.findByIdAndRemove(id).then((bet) =>{
-        console.log(bet);
 
-    if (!bet) {
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if (!todo) {
         return res.status(404).send();
     }
-    res.send(bet);
- }).catch((e) => {
-        res.status(400).send();
-    });
 
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  });
 });
 
+app.patch('/bets/:id', (req, res) => {
+  let id = req.params.id;
+  let body = _.pick(req.body, ['team']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Bet.findByIdAndUpdate(id, {$set: body}, {new: true}).then((bet) => {
+    if (!bet) {
+      return res.status(404).send();
+    }
+
+    res.send({bet});
+ }).catch((e) => {
+        res.status(400).send();
+  })
+    });
 
 app.listen(port,() =>{
   console.log(`Started up at port ${port}`);
