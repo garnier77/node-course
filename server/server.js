@@ -11,6 +11,7 @@ const port = process.env.PORT || 7777;
 app.use(bodyParser.json());
 
 app.post('/bets', (req, res) =>{
+
    let bet = new Bet({
        team: req.body.team,
        betMade: req.body.betMade
@@ -18,7 +19,15 @@ app.post('/bets', (req, res) =>{
     bet.save().then((doc) =>{
       res.send(doc);
     }, (e) =>{
+    res.status(400).send(e);
+  });
+});
 
+app.get('/bets', (req, res) => {
+   Bet.find().then((bets) => {
+    res.send({bets});
+  }, (e) => {
+    res.status(400).send(e);
     });
 });
 
@@ -37,22 +46,6 @@ app.get('/bets/:id', (req, res) => {
     }).catch((e) =>{
         res.status(400).send();
      });
-
-
-
-   // }, (e) =>{
-   //     res.status(400).send(e)
-   // })
-});
-
-app.get('/bets', (req, res) =>{
-    Bet.find().then((bets) =>{
-        res.send({bets});
-    },(e) => {
-
-        res.status(400).send(e);
-    });
-
 });
 
 app.delete('/bets/:id', (req, res) =>{
@@ -70,15 +63,13 @@ app.delete('/bets/:id', (req, res) =>{
     res.send(bet);
  }).catch((e) => {
         res.status(400).send();
-    })
+    });
 
 });
 
 
-
 app.listen(port,() =>{
-
-    console.log('Started on port 7777')
+  console.log(`Started up at port ${port}`);
 });
 
 module.exports = {app};

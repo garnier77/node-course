@@ -7,8 +7,9 @@ const{Bet} = require('./../models/bets');
 
 const bets = [{
     _id: new ObjectID(),
-    team: "San Diego Padres"
-}, {_id: new ObjectID(),
+  team: 'San Diego Padres'
+}, {
+  _id: new ObjectID(),
     team: "Atlanta Braves"
 }];
 
@@ -88,26 +89,61 @@ describe ('Get /bets/:id', () =>{
                 expect(res.body.bet.team).toBe(bets[0].team);
             })
             .end(done);
-        }
-    );
+  });
+
+  it('should return 404 if bet not found', (done) => {
+    let hexId = new ObjectID().toHexString();
+
+    request(app)
+      .get(`/todos/${hexId}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get('/bets/123abc')
+      .expect(404)
+      .end(done);
+  });
 });
 
+describe('DELETE /bets/:id', () => {
+  it('should remove a bet', (done) => {
+    let hexId = bets[1]._id.toString();
 
+        request(app)
+      .delete(`/bets/${hexId}`)
+            .expect(200)
+            .expect((res) => {
+        expect(res.body.bet._id).toBe(hexId);
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Bet.findById(hexId).then((bet) => {
+                    expect(bet).toNotExist();
+                    done();
 
+                }).catch((e) => done(e));
 
+            });
+});
 
+  it('should return 404 if bet not found', (done) => {
+    let hexId = new ObjectID().toString();
 
+    request(app)
+      .delete(`/bets/${hexId}`)
+      .expect(404)
+      .end(done);
+  });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  it('should return 404 if object id is invalid', (done) => {
+    request(app)
+      .delete('/bets/123abc')
+      .expect(404)
+      .end(done);
+  });
+});
