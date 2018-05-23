@@ -7,7 +7,7 @@ const {ObjectID}= require('mongodb');
 
 let {mongoose} = require('./db/mongoose');
 let{Bet} = require('./models/bets');
-
+let{User} = require('./models/user');
 let app = express();
 const port = process.env.PORT;
 
@@ -52,7 +52,7 @@ app.get('/bets/:id', (req, res) => {
 });
 
 app.delete('/todos/:id', (req, res) => {
-  var id = req.params.id;
+  let id = req.params.id;
 
     if(!ObjectID.isValid(id)) {
         return res.status(404).send();
@@ -94,6 +94,22 @@ app.patch('/bets/:id', (req, res) => {
         res.status(400).send();
   })
     });
+
+app.post('/users', (req, res)=>{
+    let body = _.pick(req.body, ['email', 'password']);
+    let user = new User(body);
+
+    user.save().then(() => {
+    return user.generateAuthToken();
+    }).then((token) =>{
+    res.header('x-auth', token).send(user);
+        }).catch((e) =>{
+        res.status(400).send(e);
+    })
+
+});
+
+
 
 app.listen(port,() =>{
   console.log(`Started up at port ${port}`);
