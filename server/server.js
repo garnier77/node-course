@@ -8,7 +8,9 @@ const {ObjectID}= require('mongodb');
 let {mongoose} = require('./db/mongoose');
 let{Bet} = require('./models/bets');
 let{User} = require('./models/user');
-let app = express();
+let {authenticate} = require('./middleware/authenticate');
+
+var app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
@@ -51,19 +53,19 @@ app.get('/bets/:id', (req, res) => {
      });
 });
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/bets/:id', (req, res) => {
   let id = req.params.id;
 
     if(!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-  Todo.findByIdAndRemove(id).then((todo) => {
-    if (!todo) {
+  Bet.findByIdAndRemove(id).then((bet) => {
+    if (!bet) {
         return res.status(404).send();
     }
 
-    res.send({todo});
+    res.send({bet});
   }).catch((e) => {
     res.status(400).send();
   });
@@ -108,6 +110,19 @@ app.post('/users', (req, res)=>{
     })
 
 });
+app.get('/users', (req, res) => {
+    User.find().then((users) => {
+        res.send({users});
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
+
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
+
+
 
 
 

@@ -49,9 +49,27 @@ user.tokens = user.tokens.concat([{access, token}]);
 
   return user.save().then(() => {
    return token;
-});
+    });
+  };
+
+UserSchema.statics.findByToken= function (token) {
+    let User = this;
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, 'juanning');
+    }catch (e) {
+     return new Promise((resolve, reject) =>{
+         reject();
+     })
+    }
+    return User.findOne({
+        '_id': token,
+        'tokens.access': 'auth'
+    });
 };
 
 let User = mongoose.model('User', UserSchema);
+
 
 module.exports = {User}
